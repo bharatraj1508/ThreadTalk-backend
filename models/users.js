@@ -23,6 +23,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  roles: [
+    {
+      type: String,
+      required: true,
+      enum: ["user", "admin"],
+    },
+  ],
+  created_at: {
+    type: Date,
+    default: Date.now(),
+  },
+  upadted_at: {
+    type: Date,
+    default: Date.now(),
+  },
+  faker: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 
 // Middleware function executed before saving the user

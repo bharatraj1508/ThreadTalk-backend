@@ -9,6 +9,7 @@
   "author": "Bharat Raj Verma",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.0.0",
     "@sendgrid/mail": "^8.1.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",

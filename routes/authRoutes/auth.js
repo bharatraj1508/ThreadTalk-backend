@@ -42,13 +42,13 @@ router.post("/signup", async (req, res) => {
       email,
       password,
       verified: false,
+      roles: ["user"],
     });
 
-    newUser.save().then(async (user) => {
-      await sendEmailVerification(user._id, email);
-      res.status(200).json({
-        message: "Account has been created successfully",
-      });
+    const user = await newUser.save();
+    await sendEmailVerification(user._id, email);
+    res.status(200).json({
+      message: "Account has been created successfully",
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -71,17 +71,17 @@ router.post("/signin", async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
+    if (!user)
+      return res.status(401).json({ message: "Invalid email or password" });
+    if (!(await user.comparePassword(password)))
+      return res.status(401).json({ message: "Invalid email or password" });
+
     if (!user.verified) {
       return res.status(401).send({
         message:
           "This account is not verified for login. Please check your email to verify.",
       });
     }
-
-    if (!user)
-      return res.status(401).json({ message: "Invalid email or password" });
-    if (!(await user.comparePassword(password)))
-      return res.status(401).json({ message: "Invalid email or password" });
 
     const token = newAccessToken(user._id);
 
@@ -93,8 +93,8 @@ router.post("/signin", async (req, res) => {
 
 /*
 @type     -   POST
-@route    -   /auth/email/verify
-@desc     -   Endpoint to to verify the email address for the existing users.
+@route    -   /auth/verify-email/res
+@desc     -   Endpoint to which will verify the email address and allow user to login
 @access   -   private
 */
 router.put("/verify-email/res", async (req, res) => {
@@ -146,7 +146,7 @@ router.post("/user/send-password-reset", async (req, res) => {
 /*
 @type     -   PUT
 @route    -   /auth/user/reset-password
-@desc     -   Endpoint to reset the user password if the user has forgot.
+@desc     -   Endpoint to reset the user password if the user has forgot and send the confirmation of change.
 @access   -   public
 */
 router.put("/user/reset-password", async (req, res) => {

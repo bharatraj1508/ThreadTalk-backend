@@ -1,13 +1,18 @@
 require("dotenv").config();
 require("./models/users");
 require("./models/hash");
+require("./models/answer");
+require("./models/comment");
+require("./models/question");
 
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+const adminRoutes = require("./routes/adminRoutes/adminApi");
 const authRoutes = require("./routes/authRoutes/auth");
+const questionRoutes = require("./routes/questionRoutes/questionApi");
 
 const app = express();
 
@@ -32,7 +37,14 @@ mongoose.connection.on("error", (err) => {
   console.error("Error connecting to mongo", err);
 });
 
+//registering admin routes
+app.use("/api/admin", adminRoutes);
+
+// registering auth routes
 app.use("/auth", authRoutes);
+
+// registering question routes
+app.use("/api/questions", questionRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).send({ message: "ONLINE" });
